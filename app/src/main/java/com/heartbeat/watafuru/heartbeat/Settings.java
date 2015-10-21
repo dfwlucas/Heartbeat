@@ -25,6 +25,8 @@ import java.util.UUID;
 
 public class Settings extends ListActivity {
 
+    //test for new branch
+
     private static final String TAG = "";
     ArrayAdapter mArrayAdapter;
     ArrayAdapter mNameAdapter;
