@@ -2,6 +2,7 @@ package com.heartbeat.watafuru.heartbeat;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
@@ -38,10 +39,13 @@ public class Settings extends ListActivity {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 int REQUEST_ENABLE_BT = 8;
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            } else {
-
             }
+        }
 
+
+        //CHECK THIS!!!
+        if (mBluetoothAdapter.isEnabled()) {
+            mBluetoothAdapter.startLeScan(leScanCallback);
         }
     }
 
@@ -78,6 +82,12 @@ public class Settings extends ListActivity {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
-
     }
+
+    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+        @Override
+        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+
+        }
+    };
 }
