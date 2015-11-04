@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Heartbeat</string>
-
     <string name="hello_world">Hello world!</string>
     <string name="action_settings_activity">Settings</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="unknown_device">Sorry this device isn't compatible!</string>
 </resources>

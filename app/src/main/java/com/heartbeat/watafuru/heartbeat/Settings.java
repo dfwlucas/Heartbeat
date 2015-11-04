@@ -7,11 +7,21 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import java.util.ArrayList;
 
 
 public class Settings extends ListActivity {
@@ -22,6 +32,11 @@ public class Settings extends ListActivity {
     BluetoothManager btManager;
     BluetoothAdapter mBluetoothAdapter;
     private int REQUEST_ENABLE_BT = 1;
+    private Handler mHandler;
+    private ListAdapter mLeDeviceListAdapter;
+
+    private static final long SCAN_PERIOD = 10000;
+    private boolean mScanning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,10 +99,93 @@ public class Settings extends ListActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    private void scanLeDevice(final boolean enable){
+        if (enable) {
+            //Stops after the set scan period
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mScanning = false;
+
+                }
+            }, SCAN_PERIOD);
+
+            mScanning = true;
+            mBluetoothAdapter.startLeScan(leScanCallback);
+
+        } else {
+
+            mScanning = true;
+            mBluetoothAdapter.startLeScan(leScanCallback);
+        }
+    }
+
     private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
 
         }
     };
+
+    // Adapter for holding devices found through scanning.
+    private class LeDeviceListAdapter extends BaseAdapter {
+        private ArrayList<BluetoothDevice> mLeDevices;
+        private LayoutInflater mInflator;
+        public LeDeviceListAdapter() {
+            super();
+            mLeDevices = new ArrayList<BluetoothDevice>();
+            mInflator = Settings.this.getLayoutInflater();
+        }
+        public void addDevice(BluetoothDevice device) {
+            if(!mLeDevices.contains(device)) {
+                mLeDevices.add(device);
+            }
+        }
+        public BluetoothDevice getDevice(int position) {
+            return mLeDevices.get(position);
+        }
+        public void clear() {
+            mLeDevices.clear();
+        }
+        @Override
+        public int getCount() {
+            return mLeDevices.size();
+        }
+        @Override
+        public Object getItem(int i) {
+            return mLeDevices.get(i);
+        }
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            ViewHolder viewHolder;
+            // General ListView optimization code.
+            if (view == null) {
+                view = mInflator.inflate(R.layout.bluetooth_list_item, null);
+                viewHolder = new ViewHolder();
+                viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
+                viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
+                view.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) view.getTag();
+            }
+            BluetoothDevice device = mLeDevices.get(i);
+            final String deviceName = device.getName();
+            if (deviceName != null && deviceName.length() > 0)
+                viewHolder.deviceName.setText(deviceName);
+            else
+                viewHolder.deviceName.setText(R.string.unknown_device);
+            viewHolder.deviceAddress.setText(device.getAddress());
+            return view;
+        }
+    }
+
+    static class ViewHolder {
+        TextView deviceAddress;
+        TextView deviceName;
+        int position;
+    }
 }

@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Bluetooth Device Name"
-                android:id="@+id/textView3"
+                android:id="@+id/device_name"
                 android:textSize="20sp"
                 android:textColor="#FFFFFFFF"
                 android:layout_marginTop="6dp" />
@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="BPM"
-                android:id="@+id/textView4"
+                android:id="@+id/device_address"
                 android:textSize="15sp"
                 android:textColor="#FFFFFFAA"
                 android:layout_marginBottom="6dp" />
