@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,7 +34,7 @@ public class Settings extends ListActivity {
     BluetoothAdapter mBluetoothAdapter;
     private int REQUEST_ENABLE_BT = 1;
     private Handler mHandler;
-    private ListAdapter mLeDeviceListAdapter;
+    private LeDeviceListAdapter mLeDeviceListAdapter;
 
     private static final long SCAN_PERIOD = 10000;
     private boolean mScanning;
@@ -45,6 +46,7 @@ public class Settings extends ListActivity {
 
         btManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = btManager.getAdapter();
+        mHandler = new Handler();
 
         if (mBluetoothAdapter == null) {
             //TODO: add a "I need bluetooth message"
@@ -57,11 +59,9 @@ public class Settings extends ListActivity {
             }
         }
 
-
-        //CHECK THIS!!!
-        if (mBluetoothAdapter.isEnabled()) {
-            mBluetoothAdapter.startLeScan(leScanCallback);
-        }
+        mLeDeviceListAdapter = new LeDeviceListAdapter();
+        setListAdapter(mLeDeviceListAdapter);
+        scanLeDevice(true);
     }
 
     @Override
@@ -106,6 +106,7 @@ public class Settings extends ListActivity {
                 @Override
                 public void run() {
                     mScanning = false;
+                    mBluetoothAdapter.stopLeScan(leScanCallback);
 
                 }
             }, SCAN_PERIOD);
@@ -116,14 +117,21 @@ public class Settings extends ListActivity {
         } else {
 
             mScanning = true;
-            mBluetoothAdapter.startLeScan(leScanCallback);
+            mBluetoothAdapter.stopLeScan(leScanCallback);
         }
     }
 
     private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
-        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-
+        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mLeDeviceListAdapter.addDevice(device);
+                    Log.i(TAG,device.getName());
+                    mLeDeviceListAdapter.notifyDataSetChanged();
+                }
+            });
         }
     };
 
